@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:resepku/models/recipe.dart';
 import 'package:resepku/pages/detail_page.dart';
 import 'package:resepku/providers/favorite_provider.dart';
+import 'package:resepku/widgets/recipe_image.dart';
 
 class RecipeTile extends StatelessWidget {
   const RecipeTile({super.key, required this.recipe});
@@ -11,10 +12,19 @@ class RecipeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // watch: widget ini ikut rebuild saat daftar favorit berubah
     final isFavorite = context.watch<FavoriteProvider>().isFavorite(recipe);
 
     return ListTile(
-      leading: CircleAvatar(child: Text(recipe.name[0])),
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          width: 56,
+          height: 56,
+          // 56 dp x 3 (kepadatan layar umum) = 168 pixel
+          child: RecipeImage(url: recipe.image, cacheWidth: 168),
+        ),
+      ),
       title: Text(recipe.name),
       subtitle: Text(
         '${recipe.cuisine} • ${recipe.totalTimeMinutes} menit • ★ ${recipe.rating}',
@@ -24,6 +34,7 @@ class RecipeTile extends StatelessWidget {
           isFavorite ? Icons.favorite : Icons.favorite_border,
           color: isFavorite ? Colors.red : null,
         ),
+        // read: di dalam callback cukup "membaca", tidak perlu listen
         onPressed: () => context.read<FavoriteProvider>().toggle(recipe),
       ),
       onTap: () => Navigator.push(
